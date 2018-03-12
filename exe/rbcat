@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require "rbcat"
+Rbcat::CLI.start(ARGV)

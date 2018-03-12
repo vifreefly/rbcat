@@ -1,0 +1,7 @@
+require "rbcat/version"
+require "rbcat/configuration_error"
+require "rbcat/configuration"
+require "rbcat/colors"
+require "rbcat/rules"
+require "rbcat/colorizer"
+require "rbcat/cli"
