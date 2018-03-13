@@ -1,39 +1,386 @@
 # Rbcat
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rbcat`. To experiment with that code, run `bin/console` for an interactive prompt.
+### Introduction
 
-TODO: Delete this and the text above, and describe your gem
+Rbcat it's a CLI tool written in ruby which reads from standard input (STDIN), colorizes content by set of regex rules from a config file, and then writes it to standard output. Inspired by [grcat](https://github.com/garabik/grc).
+You can use rbcat in your ruby/ROR projects or as a standalone CLI tool (similar to grcat).
 
-## Installation
-
-Add this line to your application's Gemfile:
+**Install rbcat first:** `gem install rbcat`
 
 ```ruby
-gem 'rbcat'
+# rbcat_example.rb
+
+description = <<~HEREDOC
+  Rbcat it's a CLI tool written in ruby which reads from standard input (stdin),
+  colorizes content by set of regex rules from a config file, and then writes it
+  to standard output.
+  You can use rbcat in your ruby/ROR projects or as a standalone CLI tool (similar to grcat).
+HEREDOC
+
+rules = {
+  ruby_word: {
+    regexp: /ruby/m,
+    color: :red
+  },
+  upcase_words: {
+    regexp: /[A-Z]{2,}/m,
+    color: :bold
+  },
+  inside_round_brackets: {
+    regexp: /\(.*?\)/m,
+    color: :cyan
+  },
+  gem_name: {
+    regexp: /rbcat/mi,
+    color: :green
+  }
+}
+
+require "rbcat"
+colorizer = Rbcat::Colorizer.new(rules: rules)
+puts colorizer.colorize(description)
+
 ```
 
-And then execute:
+![](https://hsto.org/webt/qp/pp/nb/qpppnbvennx7yp5nxpye5qrgt_c.png)
 
-    $ bundle
 
-Or install it yourself as:
 
-    $ gem install rbcat
+**Same using CLI:**
 
-## Usage
+```yaml
+# rbcat_config.yaml
+---
+:ruby_word:
+  :regexp: !ruby/regexp /ruby/m
+  :color: :red
+:upcase_words:
+  :regexp: !ruby/regexp /[A-Z]{2,}/m
+  :color: :bold
+:inside_round_brackets:
+  :regexp: !ruby/regexp /\(.*?\)/m
+  :color: :cyan
+:gem_name:
+  :regexp: !ruby/regexp /rbcat/mi
+  :color: :green
+```
+```bash
+$ echo "Rbcat it's a CLI tool written in ruby which reads from standard input (stdin),
+colorizes content by set of regex rules from a config file, and then writes it
+to standard output.
+You can use rbcat in your ruby/ROR projects or as a standalone CLI tool (similar to grcat)." > description.txt
 
-TODO: Write usage instructions here
+$ cat description.txt | rbcat --rules=rbcat_config.yaml # or
+$ rbcat --rules=rbcat_config.yaml < description.txt
+```
 
-## Development
+![](https://hsto.org/webt/_u/5o/vu/_u5ovumrklgtx-akeqd_lbdpkys.png)
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-## Contributing
+### Configuration
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/rbcat.
+##### Configure
 
-## License
+You can configure Rbcat this way:
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+```ruby
+require "rbcat"
+
+Rbcat.configure do |config|
+  require "yaml"
+  config.rules = YAML.load_file(File.expand_path("rbcat_config.yaml"))
+  config.predefined = [:logger]
+end
+```
+
+And then everywhere in the ruby code just:
+
+```ruby
+colorizer = Rbcat::Colorizer.new
+puts colorizer.colorize("String to colorize")
+```
+
+
+
+##### Regex rules and colors
+
+Config contains rules. Each rule has options. Example:
+
+```ruby
+config = {
+  ruby_word: {
+    regexp: /ruby/m, # Regex mask (required)
+    color: :red, # Color (required)
+    once: true # Colorize only first occurrence, then skip others (optional, defalut value is false)
+  }
+}
+```
+
+
+
+##### Predefined color sets
+
+There are predefined sets of rules: **jsonhash** (colorizes strings that contain _json_ or _ruby hash_) and **logger** (colorizes _DEBUG_, _INFO_, _WARN_ and _ERROR_).
+
+Usage: `--predefined=jsonhash,logger` (CLI), or `Rbcat::Colorizer.new(predefined: [:jsonhash, logger])` (ruby)
+
+Let's see:
+
+![](https://hsto.org/webt/ko/ui/dw/kouidw7sm_wcsitt-nfz88ydpf4.png)
+
+![](https://hsto.org/webt/18/6g/wj/186gwj7o9rvsqipo2rspwbe958q.png)
+
+![](https://hsto.org/webt/yv/vg/jv/yvvgjvjpobcyjziwcv1vyxln3u4.png)
+
+You can use both custom and predefined rules in the same time.
+
+
+
+##### Colors
+
+To print all available colors: `$ rbcat --print_colors`
+
+
+
+##### Yaml config
+
+Correct yaml config should be convertible to the Ruby hash. Here is an example of Rbcat config in both Ruby hash and yaml:
+
+```yaml
+# rbcat_config.yaml
+
+---
+:ruby_word:
+  :regexp: !ruby/regexp /ruby/m
+  :color: :red
+:upcase_words:
+  :regexp: !ruby/regexp /[A-Z]{2,}/m
+  :color: :bold
+:inside_round_brackets:
+  :regexp: !ruby/regexp /\(.*?\)/m
+  :color: :cyan
+:gem_name:
+  :regexp: !ruby/regexp /rbcat/mi
+  :color: :green
+  :once: true
+```
+
+```ruby
+# ruby hash
+
+{
+  ruby_word: {
+    regexp: /ruby/m,
+    color: :red
+  },
+  upcase_words: {
+    regexp: /[A-Z]{2,}/m,
+    color: :bold
+  },
+  inside_round_brackets: {
+    regexp: /\(.*?\)/m,
+    color: :cyan
+  },
+  gem_name: {
+    regexp: /rbcat/mi,
+    color: :green
+    once: true
+  }
+}
+```
+
+
+
+### Using inside ruby project
+
+It's a good idea to use rbcat with logger, so you can configure logger with colorizer once and then use it to print info to the console everywhere in the ruby code.
+
+What we need to do is to [define formatter](http://ruby-doc.org/stdlib-2.5.0/libdoc/logger/rdoc/Logger.html#class-Logger-label-Format) for the logger, while creating one.
+
+
+
+##### Using with a default ruby logger
+
+Here is the simple example:
+
+```ruby
+require "logger"
+require "rbcat"
+
+# configure rbcat first
+Rbcat.configure do |config|
+  require "yaml"
+  config.rules = YAML.load_file(File.expand_path("rbcat_config.yaml"))
+end
+
+# define formatter
+formatter = proc do |severity, datetime, progname, msg|
+  # default ruby logger layout:
+  output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
+  colorizer = Rbcat::Colorizer.new
+  colorizer.colorize(output)
+end
+
+# logger instance
+logger = ::Logger.new(STDOUT, formatter: formatter)
+
+logger.info "Message to colorize"
+```
+
+This is a nice example but almost isn't usable.  In the normal ruby project, there are many classes and we need somehow have access to ours colorized logger instance from everywhere.
+
+One of possible solutions is to use logger module and then include it to every class where we need it:
+
+```ruby
+require "logger"
+
+module Log
+  def logger
+    @logger ||= begin
+      ::Logger.new(STDOUT, formatter: proc { |severity, datetime, progname, msg|
+        # default ruby logger layout
+        output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
+        colorizer = Rbcat::Colorizer.new
+        colorizer.colorize(output)
+      })
+    end
+  end
+end
+
+class SomeClass
+  include Log
+
+  def print_message(msg)
+    logger.info msg
+  end
+end
+
+SomeClass.new.print_message("Colorized message")
+```
+
+
+
+In the example above, we still need every time include Log module for every class. **There is another more convenient way**, using Log class with class logger methods:
+
+```ruby
+require "logger"
+require "forwardable"
+
+class Log
+  class << self
+    extend Forwardable
+    delegate [:debug, :info, :warn, :error, :fatal] => :logger
+
+    def logger
+      @logger ||= begin
+        ::Logger.new(STDOUT, formatter: proc { |severity, datetime, progname, msg|
+          # default ruby logger layout
+          output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
+          colorizer = Rbcat::Colorizer.new(predefined: [:logger])
+          colorizer.colorize(output)
+        })
+      end
+    end
+  end
+end
+```
+
+![](https://hsto.org/webt/1f/vr/bc/1fvrbc5mlez-kmgromeidhky700.png)
+
+With this approach, you can use colorized logger everywhere in the code.
+
+
+
+##### Using with other logger libraries
+
+[Logstash:](https://github.com/dwbutler/logstash-logger)
+
+```ruby
+require "logstash-logger"
+require "rbcat"
+
+logger = begin
+  formatter = proc { |severity, datetime, progname, msg|
+    output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
+    colorizer = Colorizer.new
+    colorizer.colorize(output)
+  }
+
+  LogStashLogger.new(type: :stdout, formatter: formatter)
+end
+
+logger.info "Info message to colorize"
+```
+
+
+
+##### Write clear log to the file and print colorized output to the console at the same time
+
+Suddenly, default ruby logger can't output info to the several sources at the same time. But it can do [Logstash](https://github.com/dwbutler/logstash-logger) for example:
+
+```ruby
+require "logstash-logger"
+require "rbcat"
+
+logger = begin
+  formatter = proc { |severity, datetime, progname, msg|
+    output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
+    colorizer = Colorizer.new
+    colorizer.colorize(output)
+  }
+
+  outputs = [
+    { type: :stdout, formatter: formatter },
+    { type: :file, formatter: ::Logger::Formatter }
+  ]
+
+  LogStashLogger.new(type: :multi_logger, formatter: formatter, outputs: outputs)
+end
+```
+
+
+
+### Q&A
+
+##### I have a problem with a printing delay to the console using rbcat CLI
+
+The same problem has [grcat](https://github.com/garabik/grc).
+
+Example:
+
+```bash
+$ ruby -e "loop { puts 'INFO: This is info message'; sleep 0.1 }" | rbcat --predefined=logger
+```
+
+This code should print _"INFO: This is info message"_ to the console every 0.1 seconds. But its don't, because of nature of STDOUT buffering. [Here is a great article](https://eklitzke.org/stdout-buffering) about it.
+
+One of possible solutions is to use **[unbuffer](https://linux.die.net/man/1/unbuffer)** tool (`sudo apt install expect` for ubuntu):
+
+```bash
+$ unbuffer ruby -e "loop { puts 'INFO: This is info message'; sleep 0.1 }" | rbcat --predefined=logger
+```
+
+Now message prints to the console every 0.1 seconds without any delay.
+
+
+
+##### I don't like colors which colorizer prints
+
+Colorizer uses [standard ANSI escape color codes](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors), but each terminal can have an individual color palette. You can install additional color schemes, [here](https://github.com/Mayccoll/Gogh) for example [themes](https://github.com/denysdovhan/one-gnome-terminal) for Gnome terminal.
+
+
+
+##### I want to temporary disable colorizer
+
+Define environment variable `RBCAT_COLORIZER` with value `false`. Or use `RBCAT_COLORIZER=false` as the first parameter of command:
+
+```bash
+$ RBCAT_COLORIZER=false ruby grcat_example.rb
+```
+
+
+
+### License
+
+MIT
