@@ -335,7 +335,7 @@ logger = begin
     { type: :file, formatter: ::Logger::Formatter }
   ]
 
-  LogStashLogger.new(type: :multi_logger, formatter: formatter, outputs: outputs)
+  LogStashLogger.new(type: :multi_logger, outputs: outputs)
 end
 ```
 
