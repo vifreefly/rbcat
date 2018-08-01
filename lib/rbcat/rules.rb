@@ -29,22 +29,27 @@ module Rbcat
 
     LOGGER = {
       info_logger: {
-        regexp: /INFO(\s--\s:|)/m,
+        regexp: /INFO(\s--\s.*?\:|)/m,
         color: :cyan,
         once: true
       },
       error_logger: {
-        regexp: /ERROR(\s--\s:|)/m,
+        regexp: /ERROR(\s--\s.*?\:|)/m,
         color: :red,
         once: true
       },
+      fatal_logger: {
+        regexp: /FATAL(\s--\s.*?\:|)/m,
+        color: :bold_red,
+        once: true
+      },
       warn_logger: {
-        regexp: /WARN(\s--\s:|)/m,
+        regexp: /WARN(\s--\s.*?\:|)/m,
         color: :yellow,
         once: true
       },
       debug_logger: {
-        regexp: /DEBUG(\s--\s:|)/m,
+        regexp: /DEBUG(\s--\s.*?\:|)/m,
         color: :green,
         once: true
       }
