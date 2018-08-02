@@ -6,15 +6,13 @@ module Rbcat
       end
     end
 
-    def initialize(predefined: nil, rules: nil, order: nil)
-      @config = create_config(predefined, rules, order)
-    end
-
-    def colorize(string)
+    def self.colorize(string, predefined: nil, rules: nil, order: nil)
       return string if ENV["RBCAT_COLORIZER"] == "false"
 
       colors = Rbcat::Colors::DEFAULT
-      @config.each_value do |settings|
+      config = create_config(predefined, rules, order)
+
+      config.each_value do |settings|
         if settings[:once]
           string.sub!(settings[:regexp]) do |match|
             colors[settings[:color]] + match + colors[:default]
@@ -38,14 +36,12 @@ module Rbcat
       string
     end
 
-    def uncolorize(string)
+    def self.uncolorize(string)
       pattern = /\033\[([0-9]+);([0-9]+)m|\033\[([0-9]+)m/m
       string.gsub(pattern, "")
     end
 
-    private
-
-    def create_config(predefined, rules, order)
+    private_class_method def self.create_config(predefined, rules, order)
       predefined_rules = predefined ? predefined : Rbcat.configuration&.predefined
       rules ||= Rbcat.configuration&.rules
 
@@ -79,7 +75,7 @@ module Rbcat
       end
     end
 
-    def deep_merge(hash, other_hash)
+    private_class_method def self.deep_merge(hash, other_hash)
       other_hash.each_pair do |current_key, other_value|
         this_value = hash[current_key]
         hash[current_key] =

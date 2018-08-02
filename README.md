@@ -37,9 +37,7 @@ rules = {
 }
 
 require "rbcat"
-colorizer = Rbcat::Colorizer.new(rules: rules)
-puts colorizer.colorize(description)
-
+puts Rbcat.colorize(description, rules: rules)
 ```
 
 ![](https://hsto.org/webt/qp/pp/nb/qpppnbvennx7yp5nxpye5qrgt_c.png)
@@ -94,8 +92,7 @@ end
 And then everywhere in the ruby code just:
 
 ```ruby
-colorizer = Rbcat::Colorizer.new
-puts colorizer.colorize("String to colorize")
+puts Rbcat.colorize("String to colorize")
 ```
 
 ##### Regex rules and colors
@@ -197,13 +194,11 @@ end
 formatter = proc do |severity, datetime, progname, msg|
   # default ruby logger layout:
   output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
-  colorizer = Rbcat::Colorizer.new
-  colorizer.colorize(output)
+  Rbcat.colorize(output)
 end
 
 # logger instance
 logger = ::Logger.new(STDOUT, formatter: formatter)
-
 logger.info "Message to colorize"
 ```
 
@@ -217,8 +212,7 @@ module Log
       ::Logger.new(STDOUT, formatter: proc { |severity, datetime, progname, msg|
         # default ruby logger layout
         output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
-        colorizer = Rbcat::Colorizer.new
-        colorizer.colorize(output)
+        Rbcat.colorize(output)
       })
     end
   end
@@ -251,8 +245,7 @@ class Log
         ::Logger.new(STDOUT, formatter: proc { |severity, datetime, progname, msg|
           # default ruby logger layout
           output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
-          colorizer = Rbcat::Colorizer.new(predefined: [:logger])
-          colorizer.colorize(output)
+          Rbcat.colorize(output, predefined: [:logger])
         })
       end
     end
@@ -275,8 +268,7 @@ require 'rbcat'
 logger = begin
   formatter = proc { |severity, datetime, progname, msg|
     output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
-    colorizer = Colorizer.new
-    colorizer.colorize(output)
+    Rbcat.colorize(output)
   }
 
   LogStashLogger.new(type: :stdout, formatter: formatter)
@@ -296,8 +288,7 @@ require 'rbcat'
 logger = begin
   formatter = proc { |severity, datetime, progname, msg|
     output = "%s, [%s#%d] %5s -- %s: %s\n".freeze % [severity[0..0], datetime, $$, severity, progname, msg]
-    colorizer = Colorizer.new
-    colorizer.colorize(output)
+    Rbcat.colorize(output)
   }
 
   outputs = [
@@ -339,7 +330,5 @@ Define environment variable `RBCAT_COLORIZER` with value `false`. Or use `RBCAT_
 $ RBCAT_COLORIZER=false ruby grcat_example.rb
 ```
 
-
 ### License
-
 MIT

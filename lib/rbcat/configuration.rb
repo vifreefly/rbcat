@@ -1,4 +1,6 @@
 module Rbcat
+  class ConfigurationError < StandardError; end
+
   class << self
     attr_accessor :configuration
   end

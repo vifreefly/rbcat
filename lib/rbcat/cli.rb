@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
-require "optparse"
+require 'optparse'
+require 'yaml'
 
 module Rbcat
   class CLI
     def self.start(args)
       options = parse_options(args)
-      colorizer = create_colorizer(options)
+      colorizer_options = create_colorizer_options(options)
 
       while input = STDIN.gets
         input.each_line do |line|
           begin
-            puts colorizer.colorize(line)
+            puts Rbcat.colorize(line, colorizer_options)
           rescue Errno::EPIPE
             exit(74)
           end
@@ -19,16 +20,13 @@ module Rbcat
       end
     end
 
-    private_class_method
-
-    def self.create_colorizer(options)
+    private_class_method def self.create_colorizer_options(options)
       rules =
         if options[:rules]
           file_path = File.expand_path(options[:rules])
           unless File.exist? file_path
             raise ConfigurationError, "Config file not found: #{file_path}."
           else
-            require "yaml"
             YAML.load_file(file_path)
           end
         end
@@ -36,10 +34,10 @@ module Rbcat
       predefined = options[:predefined]
       order = options[:order]
 
-      Colorizer.new(predefined: predefined, rules: rules, order: order)
+      { predefined: predefined, rules: rules, order: order }
     end
 
-    def self.parse_options(args)
+    private_class_method def self.parse_options(args)
       options = {}
 
       args.push("-h") if args.empty?
