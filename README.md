@@ -89,7 +89,7 @@ Rbcat.configure do |config|
 end
 ```
 
-And then everywhere in the ruby code just:
+And then anywhere in the ruby code just:
 
 ```ruby
 puts Rbcat.colorize("String to colorize")
