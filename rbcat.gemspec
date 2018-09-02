@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Colorize output by defined set of regex rules"
   spec.description   = "Colorize output by defined set of regex rules"
-  spec.homepage      = "https://github.com/vfreefly/rbcat"
+  spec.homepage      = "https://github.com/vifreefly/rbcat"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
