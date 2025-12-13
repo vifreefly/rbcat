@@ -1,9 +1,11 @@
-require "rbcat/version"
-require "rbcat/configuration"
-require "rbcat/colors"
-require "rbcat/rules"
-require "rbcat/colorizer"
-require "rbcat/cli"
+# frozen_string_literal: true
+
+require 'rbcat/version'
+require 'rbcat/configuration'
+require 'rbcat/colors'
+require 'rbcat/rules'
+require 'rbcat/colorizer'
+require 'rbcat/cli'
 
 module Rbcat
   def self.colorize(string, options = {})

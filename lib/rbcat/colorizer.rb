@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rbcat
   class Colorizer
     def self.print_colors
@@ -7,7 +9,7 @@ module Rbcat
     end
 
     def self.colorize(string, predefined: nil, rules: nil, order: nil)
-      return string if ENV["RBCAT_COLORIZER"] == "false"
+      return string if ENV['RBCAT_COLORIZER'] == 'false'
 
       colors = Rbcat::Colors::DEFAULT
       config = create_config(predefined, rules, order)
@@ -19,7 +21,7 @@ module Rbcat
           end
         elsif settings[:colors]
           string.gsub!(settings[:regexp]) do
-            str = ""
+            str = ''
             Regexp.last_match.captures.each_with_index do |match, i|
               str << colors[settings[:colors][i]] + match + colors[:default]
             end
@@ -38,16 +40,17 @@ module Rbcat
 
     def self.uncolorize(string)
       pattern = /\033\[([0-9]+);([0-9]+)m|\033\[([0-9]+)m/m
-      string.gsub(pattern, "")
+      string.gsub(pattern, '')
     end
 
     private_class_method def self.create_config(predefined, rules, order)
-      predefined_rules = predefined ? predefined : Rbcat.configuration&.predefined
+      predefined_rules = predefined || Rbcat.configuration&.predefined
       rules ||= Rbcat.configuration&.rules
 
-      raise ConfigurationError, "No config defined." unless predefined_rules || rules
+      raise ConfigurationError, 'No config defined.' unless predefined_rules || rules
+
       if rules && rules.class != Hash
-        raise ConfigurationError, "Incorrect configuration. " \
+        raise ConfigurationError, 'Incorrect configuration. ' \
           "There is error while converting yaml config into Ruby's hash of rules."
       end
 
@@ -57,7 +60,7 @@ module Rbcat
       case order
       when :predefined_first
         predefined_rules&.each do |group|
-          config.merge!(Object.const_get "Rbcat::Rules::#{group.to_s.upcase}")
+          config.merge!(Object.const_get("Rbcat::Rules::#{group.to_s.upcase}"))
         end
 
         rules ? deep_merge(config, rules) : config
@@ -65,13 +68,13 @@ module Rbcat
         config.merge!(rules) if rules
 
         predefined_rules&.each do |group|
-          config.merge!(Object.const_get "Rbcat::Rules::#{group.to_s.upcase}")
+          config.merge!(Object.const_get("Rbcat::Rules::#{group.to_s.upcase}"))
         end
 
         config
       else
         raise ConfigurationError, "Wrong type of order: #{order}. " \
-          "Define :predefined_first (default) or :predefined_last"
+          'Define :predefined_first (default) or :predefined_last'
       end
     end
 

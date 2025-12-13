@@ -5,7 +5,7 @@
 Rbcat it's a CLI tool written in ruby which reads from standard input (STDIN), colorizes content by set of regex rules from a config file, and then writes it to standard output. Inspired by [grcat](https://github.com/garabik/grc).
 You can use rbcat in your ruby/ROR projects or as a standalone CLI tool (similar to grcat).
 
-**Install rbcat first:** `gem install rbcat`
+**Install rbcat first:** `gem install rbcat` _(supported Ruby version 3.1.0 and up)_
 
 ```ruby
 # rbcat_example.rb
@@ -84,7 +84,7 @@ require 'rbcat'
 require 'yaml'
 
 Rbcat.configure do |config|
-  config.rules = YAML.load_file(File.expand_path("rbcat_config.yaml"))
+  config.rules = YAML.load_file(File.expand_path("rbcat_config.yaml"), permitted_classes: [Regexp, Symbol])
   config.predefined = [:logger]
 end
 ```
@@ -187,7 +187,7 @@ require 'yaml'
 
 # configure rbcat first
 Rbcat.configure do |config|
-  config.rules = YAML.load_file(File.expand_path("rbcat_config.yaml"))
+  config.rules = YAML.load_file(File.expand_path("rbcat_config.yaml"), permitted_classes: [Regexp, Symbol])
 end
 
 # define formatter

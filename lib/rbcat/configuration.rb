@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Rbcat
   class ConfigurationError < StandardError; end
 
